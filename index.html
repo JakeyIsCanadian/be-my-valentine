@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>hi :)</title>
+  <style>
+    :root { --bg1:#0f1020; --bg2:#1b1f3a; --card:#14172a; --txt:#f7f7fb; --muted:#c9c9d6; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% 20%, #ff4d8d33, transparent 60%),
+                  radial-gradient(900px 700px at 80% 30%, #6c63ff33, transparent 60%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      color: var(--txt);
+      overflow: hidden;
+    }
+    .wrap {
+      text-align: center;
+      padding: 28px;
+      width: min(560px, 92vw);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 40px);
+      letter-spacing: -0.02em;
+    }
+    p { margin: 0 0 22px; color: var(--muted); }
+
+    .btn {
+      border: 0;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.08s ease, filter 0.15s ease;
+      user-select: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: #ff4d8d; color: #0b0c18; }
+    .btn-ghost { background: rgba(255,255,255,0.10); color: var(--txt); }
+
+    /* Modal */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(8px);
+      padding: 22px;
+    }
+    .overlay.show { display: grid; }
+
+    .modal {
+      width: min(520px, 92vw);
+      background: rgba(20,23,42,0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+      position: relative;
+    }
+    .modal h2 { margin: 0 0 8px; font-size: 26px; }
+    .modal .sub { margin: 0 0 18px; color: var(--muted); }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding-top: 8px;
+    }
+
+    /* "No" button becomes movable */
+    .no-btn {
+      position: relative; /* becomes fixed once activated */
+    }
+
+    /* Cute floating hearts */
+    .heart {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      transform: rotate(45deg);
+      opacity: 0.9;
+      animation: floatUp 2.8s linear forwards;
+      pointer-events: none;
+    }
+    .heart::before, .heart::after {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: inherit;
+    }
+    .heart::before { left: -5px; top: 0; }
+    .heart::after { left: 0; top: -5px; }
+    @keyframes floatUp {
+      from { transform: translateY(0) rotate(45deg); opacity: 0.95; }
+      to   { transform: translateY(-140px) rotate(45deg); opacity: 0; }
+    }
+
+    .note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>hi cutie</h1>
+    <p>I made you something. Click the button 🙂</p>
+    <button class="btn btn-primary" id="open">open 💌</button>
+    <div class="note">(turn sound on in your head: *dramatic romance music*)</div>
+  </div>
+
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="title">
+      <h2 id="title">Will you be my Valentine? 💘</h2>
+      <p class="sub">Choose wisely.</p>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="yes">Yes 💖</button>
+        <button class="btn btn-ghost no-btn" id="no">No 🙃</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const overlay = document.getElementById("overlay");
+    const openBtn = document.getElementById("open");
+    const yesBtn = document.getElementById("yes");
+    const noBtn = document.getElementById("no");
+
+    // Open modal
+    openBtn.addEventListener("click", () => {
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+    });
+
+    // Close if click outside modal
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove("show");
+        overlay.setAttribute("aria-hidden", "true");
+      }
+    });
+
+    // YES action
+    yesBtn.addEventListener("click", () => {
+      // confetti-ish hearts burst
+      for (let i = 0; i < 18; i++) spawnHeart(window.innerWidth/2, window.innerHeight/2);
+      setTimeout(() => {
+        document.querySelector(".modal").innerHTML = `
+          <h2>YAYYYYY 💞</h2>
+          <p class="sub">Okay it’s official. You’re my Valentine 😌</p>
+          <div class="actions">
+            <button class="btn btn-primary" id="close">close</button>
+          </div>
+        `;
+        document.getElementById("close").addEventListener("click", () => {
+          overlay.classList.remove("show");
+          overlay.setAttribute("aria-hidden", "true");
+        });
+      }, 250);
+    });
+
+    // NO button dodges cursor (desktop) + dodges tap (mobile)
+    function moveNoButton() {
+      // Make it fixed so it can move anywhere on screen
+      noBtn.style.position = "fixed";
+
+      const padding = 18;
+      const btnRect = noBtn.getBoundingClientRect();
+      const maxX = window.innerWidth - btnRect.width - padding;
+      const maxY = window.innerHeight - btnRect.height - padding;
+
+      const x = Math.max(padding, Math.floor(Math.random() * maxX));
+      const y = Math.max(padding, Math.floor(Math.random() * maxY));
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+
+      spawnHeart(x + btnRect.width/2, y + btnRect.height/2);
+    }
+
+    // Desktop: dodge when cursor gets close
+    document.addEventListener("mousemove", (e) => {
+      const r = noBtn.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+
+      // adjust threshold for how "mean" it is
+      if (dist < 90 && overlay.classList.contains("show")) {
+        moveNoButton();
+      }
+    });
+
+    // Mobile: dodge on touch
+    noBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      moveNoButton();
+    }, { passive: false });
+
+    // Also dodge if they somehow hover/focus it
+    noBtn.addEventListener("mouseenter", moveNoButton);
+    noBtn.addEventListener("focus", moveNoButton);
+
+    // Hearts
+    function spawnHeart(x, y) {
+      const h = document.createElement("div");
+      h.className = "heart";
+      h.style.left = (x + (Math.random()*16 - 8)) + "px";
+      h.style.top  = (y + (Math.random()*16 - 8)) + "px";
+      h.style.background = Math.random() > 0.5 ? "#ff4d8d" : "#6c63ff";
+      h.style.filter = "drop-shadow(0 6px 12px rgba(0,0,0,0.35))";
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 2800);
+    }
+  </script>
+</body>
+</html>
